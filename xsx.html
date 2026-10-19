@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Admin MIDNIGHT LAB</title>
+<style>
+body{margin:0;background:#0b0303;color:#fdd;font:15px/1.5 system-ui,sans-serif;padding:16px}
+.w{max-width:720px;margin:0 auto}h1{color:#e55;letter-spacing:.08em;font-size:20px}
+input,button{font:inherit;padding:10px 14px;border-radius:6px;border:1px solid #a33;background:#300;color:#fdd}
+input{background:#120505;border-color:#533;width:100%;box-sizing:border-box;margin-bottom:8px}
+button{cursor:pointer}button.on{background:#a33}button.sm{padding:5px 10px;font-size:13px}
+.t{display:flex;gap:8px;margin:12px 0}.c{border:1px solid #533;border-left:5px solid #c33;background:#1a0808;border-radius:8px;padding:10px 12px;margin:10px 0}
+.c.off{opacity:.55;border-left-color:#555}.h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}.s{color:#fc6}small{opacity:.6}p{margin:6px 0;word-break:break-word;white-space:pre-wrap}#e{color:#e66}
+</style></head><body><div class="w"><h1>ADMIN MIDNIGHT LAB</h1>
+<div id="lg"><input id="k" type="password" placeholder="Password admin"><button id="ok">MASUK</button><div id="e"></div></div>
+<div id="ad" hidden><div class="t"><button id="rf">Muat ulang</button><button id="out">Keluar</button></div><div id="ls"></div></div></div>
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbxi-7yiFMUMLEDie2yW4-l1u4z2cqonet-vOzI41iV34QraZQAZGR9pNOZ0MYDorotYVw/exec';
+const $=id=>document.getElementById(id);let key=sessionStorage.getItem('k')||'',D=null;
+const star=n=>'\u2605'.repeat(n)+'\u2606'.repeat(5-n);
+const el=(t,x,c)=>{const e=document.createElement(t);if(x!=null)e.textContent=x;if(c)e.className=c;return e};
+function load(){fetch(API_URL+'?action=admin&key='+encodeURIComponent(key)).then(r=>r.json()).then(d=>{
+  if(!d.ok){$('e').textContent=d.err||'Gagal';sessionStorage.removeItem('k');$('lg').hidden=false;$('ad').hidden=true;return}
+  D=d;sessionStorage.setItem('k',key);$('lg').hidden=true;$('ad').hidden=false;draw()}).catch(()=>{$('e').textContent='Tidak bisa terhubung ke server'})}
+function act(a,id,v,b){b.disabled=true;fetch(API_URL,{method:'POST',body:JSON.stringify({action:a,id,nilai:v,key})}).then(r=>r.json()).then(d=>{if(!d.ok)alert(d.err);load()}).catch(()=>{alert('Gagal');b.disabled=false})}
+const yes=v=>v===true||v==='TRUE';
+function draw(){const L=$('ls');L.textContent='';
+  const a=D.ulasan;if(!a.length)L.appendChild(el('p','Belum ada data.'));
+  a.forEach(x=>{const on=yes(x.tampil),c=el('div',null,'c'+(on?'':' off'));
+    const h=el('div',null,'h'),l=el('div');l.appendChild(el('b',x.nama));
+    l.appendChild(el('span',' '+star(Number(x.bintang)),'s'));
+    l.appendChild(el('small',' '+new Date(x.waktu).toLocaleString('id-ID')));h.appendChild(l);
+    const b=el('button',on?'Sembunyikan':'Tampilkan','sm');
+    b.onclick=()=>act('tampil',x.id,!on,b);h.appendChild(b);
+    c.appendChild(h);c.appendChild(el('p',x.komentar));L.appendChild(c)})}
+$('ok').onclick=()=>{key=$('k').value;$('e').textContent='';load()};$('k').onkeydown=e=>{if(e.key==='Enter')$('ok').click()};
+$('rf').onclick=load;
+$('out').onclick=()=>{sessionStorage.removeItem('k');key='';$('lg').hidden=false;$('ad').hidden=true};
+if(key)load();
+</script></body></html>
